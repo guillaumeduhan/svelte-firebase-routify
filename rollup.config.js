@@ -10,6 +10,7 @@ import getConfig from '@roxi/routify/lib/utils/config'
 import autoPreprocess from 'svelte-preprocess'
 import postcssImport from 'postcss-import'
 import { injectManifest } from 'rollup-plugin-workbox'
+import svelteSVG from "rollup-plugin-svelte-svg";
 
 
 const { distDir } = getConfig() // use Routify's distDir for SSOT
@@ -17,6 +18,7 @@ const assetsDir = 'assets'
 const buildDir = `${distDir}/build`
 const isNollup = !!process.env.NOLLUP
 const production = !process.env.ROLLUP_WATCH;
+process.env.NODE_ENV = production ? "production" : "development";
 
 // clear previous builds
 removeSync(distDir)
@@ -45,9 +47,10 @@ export default {
         format: 'esm',
         dir: buildDir,
         // for performance, disabling filename hashing in development
-        chunkFileNames:`[name]${production && '-[hash]' || ''}.js`
+        chunkFileNames: `[name]${production && '-[hash]' || ''}.js`
     },
     plugins: [
+        svelteSVG(),
         svelte({
             dev: !production, // run-time checks      
             // Extract component CSS — better performance
@@ -55,7 +58,7 @@ export default {
             hot: isNollup,
             preprocess: [
                 autoPreprocess({
-                    postcss: { plugins: [postcssImport()] },
+                    postcss: require('./postcss.config.js'),
                     defaults: { style: 'postcss' }
                 })
             ]

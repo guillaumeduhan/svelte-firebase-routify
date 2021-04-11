@@ -1,7 +1,8 @@
 import firebase from 'firebase/app';
 import 'firebase/auth';
-import { firebaseConfig } from "../auth/config.js";
+import { firebaseConfig } from "./config.js";
 import { readable } from 'svelte/store';
+import { CREATE_USER_COLLECTION } from '../services/firebase'
 
 firebase.initializeApp(firebaseConfig);
 
@@ -35,6 +36,8 @@ export const initAuth = (useRedirect = false) => {
          if (fireUser) {
             const token = await fireUser.getIdTokenResult();
             const user = userMapper(token.claims);
+            // here
+            CREATE_USER_COLLECTION(user.id)
             set(user);
          } else {
             set(null);
